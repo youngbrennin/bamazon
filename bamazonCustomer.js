@@ -49,9 +49,13 @@ var shoppingCart = function () {
         }
     }]).then(function (answer) {
 
+
         var query = 'SELECT * FROM products WHERE item_id=' + answer.ProductID;
         connection.query(query, function (err, res) {
-            if (answer.Quantity > res) {
+            if (answer.Quantity <= res[0].stock_quantity) {
+                var query1 = 'UPDATE products SET stock_quantity =' + (res[0].stock_quantity - answer.Quantity) + ' WHERE item_id = ' + answer.ProductID; 
+                connection.query(query1, function (error, result) {
+                })
                 for (var i = 0; i < res.length; i++) {
                     console.log("We currently have " + res[i].stock_quantity + " " + res[i].product_name + ".");
                     console.log("Thank you! Your order of " + answer.Quantity + " " + res[i].product_name + " is now being processed.");
