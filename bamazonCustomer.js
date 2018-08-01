@@ -1,6 +1,8 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 
+var total = 0;
+
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -8,6 +10,7 @@ var connection = mysql.createConnection({
     password: "password",
     database: "bamazon"
 })
+
 
 connection.connect(function (err) {
     if (err) throw err;
@@ -52,13 +55,16 @@ var shoppingCart = function () {
 
         var query = 'SELECT * FROM products WHERE item_id=' + answer.ProductID;
         connection.query(query, function (err, res) {
-            if (answer.Quantity <= res[0].stock_quantity) {
-                var query1 = 'UPDATE products SET stock_quantity =' + (res[0].stock_quantity - answer.Quantity) + ' WHERE item_id = ' + answer.ProductID; 
-                connection.query(query1, function (error, result) {
+            let chosenProduct = res[0];
+            if (answer.Quantity <= chosenProduct.stock_quantity) {
+                total += chosenProduct.price ;
+                var query1 = 'UPDATE products SET stock_quantity =' + (chosenProduct.stock_quantity - answer.Quantity) + ' WHERE item_id = ' + answer.ProductID; 
+                connection.query(query1, function (error, result) { 
                 })
                 for (var i = 0; i < res.length; i++) {
                     console.log("We currently have " + res[i].stock_quantity + " " + res[i].product_name + ".");
                     console.log("Thank you! Your order of " + answer.Quantity + " " + res[i].product_name + " is now being processed.");
+                    console.log("Your shopping cart total: " + total);
                 }
             // res[i].stock_quantity -= answer.Quantity;
             } else {
